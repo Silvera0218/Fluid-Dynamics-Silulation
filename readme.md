@@ -2,8 +2,9 @@
 This repository contains the MATLAB project is focusing on solving steady-state and unsteady-state Navier-Stokes equations for 2D channel flow. The project implements and compares various advanced numerical methods to simulate complex incompressible fluid flow around multiple cylindrical obstacles.
 
 ![Vortex Street Animation](assets/vortex.gif)
-*The von Kármán vortex street phenomenon, successfully captured in the unsteady simulation at a low viscosity (μ=0.01).*
 
+*The von Kármán vortex street phenomenon, successfully captured in the unsteady simulation at a low viscosity (μ=0.01).*
+--
 ## Project Overview
 
 This project aims to numerically solve the classic computational fluid dynamics problem of 2D flow in a channel with multiple obstacles using the Finite Element Method (FEM). We begin by generating a high-quality unstructured mesh using the `Distmesh` toolbox and employ Taylor-Hood (P2-P1) elements for spatial discretization to ensure the stability and accuracy of the numerical solution.
