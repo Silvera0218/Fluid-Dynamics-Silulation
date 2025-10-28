@@ -365,6 +365,10 @@ The flow begins from a quasi-steady state, gradually becomes unstable, and vorti
 
 ![Vortex Street Animation](assets/vortex.gif)
 
+#### Warning
+
+Please be aware that the unsteady simulation for the low-viscosity case (μ = 0.01) is computationally intensive. At the current mesh resolution (h ≈ 0.2-0.3), generating the animated GIF showcasing the full development of the vortex street required approximately 13 hours of computation time. This highlights the significant computational resources needed for time-dependent, high-fidelity fluid simulations, especially as the Reynolds number increases.
+
 ## Further information
 
 I might neglect some functions in this projectm since this was accomplished 6 month ago. If you find something missing, please contact me. Thnaks.
