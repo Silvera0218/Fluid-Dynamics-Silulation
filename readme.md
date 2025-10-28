@@ -356,20 +356,7 @@ For a low viscosity of `μ=0.01`, we successfully captured the classic **von Ká
 #### Formation and Development of the Vortex Street
 The flow begins from a quasi-steady state, gradually becomes unstable, and vortices begin to shed alternately from the obstacles, forming a periodic wake.
 
-**t = 1.0 (Initial Development)**
-| Velocity Magnitude `|u|` | Streamlines |
-| :---: | :---: |
-| ![Unsteady t=1 Norm](assets/unsteady_t1_norm.png) | ![Unsteady t=1 Streamline](assets/unsteady_t1_streamline.png) |
-
-**t = 5.0 (Vortex Amplification)**
-| Velocity Magnitude `|u|` | Streamlines |
-| :---: | :---: |
-| ![Unsteady t=5 Norm](assets/unsteady_t5_norm.png) | ![Unsteady t=5 Streamline](assets/unsteady_t5_streamline.png) |
-
-**t = 11.4 (Periodic Vortex Street)**
-| Velocity Magnitude `|u|` | Streamlines |
-| :---: | :---: |
-| ![Unsteady t=11.4 Norm](assets/unsteady_t11.4_norm.png) | ![Unsteady t=11.4 Streamline](assets/unsteady_t11.4_streamline.png) |
+![Vortex Street Animation](assets/vortex.gif)
 
 ## Further information
 
