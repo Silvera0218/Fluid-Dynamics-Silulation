@@ -102,7 +102,7 @@ We use `Distmesh` to generate a quasi-uniform triangular mesh, which is then ele
 #### Mesh perform
 | Initial Mesh | FE Mesh |
 | :---: | :---: |
-| ![Initial Mesh](assets/Mesh.png) | ![FE Mesh](FE_MESH.png) |
+| ![Initial Mesh](assets/Mesh.png) | ![FE Mesh](assets/FE_MESH.png) |
 
 The boundary of mesh is identified by locating the point such that only belongs to a single triangle.
 <img src="assets/Boundary_point.png" width="600">
