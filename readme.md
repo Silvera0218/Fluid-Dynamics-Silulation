@@ -1,7 +1,6 @@
 
 This repository contains the MATLAB project is focusing on solving steady-state and unsteady-state Navier-Stokes equations for 2D channel flow. The project implements and compares various advanced numerical methods to simulate complex incompressible fluid flow around multiple cylindrical obstacles.
 
-![Vortex Street Animation](assets/unsteady_t11.4.png)
 ![Vortex Street Animation](assets/vortex.gif)
 *The von Kármán vortex street phenomenon, successfully captured in the unsteady simulation at a low viscosity (μ=0.01).*
 
@@ -106,45 +105,48 @@ The core of our solver involves assembling matrices by integrating products of b
 This crucial utility function computes the values and derivatives of the P2 Lagrange basis functions on a reference triangular element. These values are pre-calculated at the Gauss quadrature points and are the fundamental building blocks for assembling all system matrices.
 
 ```matlab
-function val = basis_function(p, derivative_order_x, derivative_order_y, gauss_points)
-    % For P2 elements (p=2), there are 6 basis functions (Nlpj=6)
-    % xi and eta are the coordinates on the reference element
-    xi = gauss_points(:,1);
-    eta = gauss_points(:,2);
-    
-    if p == 2
-        N1 = (1-xi-eta).*(1-2*xi-2*eta);
-        N2 = xi.*(2*xi-1);
-        N3 = eta.*(2*eta-1);
-        N4 = 4*xi.*(1-xi-eta);
-        N5 = 4*xi.*eta;
-        N6 = 4*eta.*(1-xi-eta);
-        
-        if derivative_order_x == 0 && derivative_order_y == 0
-            val = [N1, N2, N3, N4, N5, N6];
-        elseif derivative_order_x == 1 && derivative_order_y == 0 % d/d(xi)
-            dN1_dxi = 4*xi + 4*eta - 3;
-            dN2_dxi = 4*xi - 1;
-            dN3_dxi = zeros(size(xi));
-            dN4_dxi = 4 - 8*xi - 4*eta;
-            dN5_dxi = 4*eta;
-            dN6_dxi = -4*eta;
-            val = [dN1_dxi, dN2_dxi, dN3_dxi, dN4_dxi, dN5_dxi, dN6_dxi];
-        elseif derivative_order_x == 0 && derivative_order_y == 1 % d/d(eta)
-            dN1_deta = 4*xi + 4*eta - 3;
-            dN2_deta = zeros(size(xi));
-            dN3_deta = 4*eta - 1;
-            dN4_deta = -4*xi;
-            dN5_deta = 4*xi;
-            dN6_deta = 4 - 4*xi - 8*eta;
-            val = [dN1_deta, dN2_deta, dN3_deta, dN4_deta, dN5_deta, dN6_deta];
-        else
-            error('Derivative order not supported for P2 elements');
-        end
-    else
-        error('Only P2 elements (p=2) are supported');
+function phi=basis_function(p,ndx,ndy,gauss)
+  n=(p+2)*(p+1)/2;m=size(gauss,1);
+  phi=zeros(n,m);
+  %P1element
+  if p==1
+   for j=1:m
+    x=gauss(j,1);y=gauss(j,2);
+    if ndx==0&&ndy==0 %basisfunctions
+      phi(1,j)=-x-y+1; %point1:(0,0)
+      phi(2,j)=x; %point2:(1,0)
+      phi(3,j)=y; %point3:(0,1)
     end
-    val = val'; % Return as Nlpj x Ng matrix
+    if ndx==1&&ndy==0 %firstderivativeforx
+      phi(1,j)=-1;phi(2,j)=1;phi(3,j)=0;
+    end
+    if ndx==0&&ndy==1 %firstderivativefory
+      phi(1,j)=-1;phi(2,j)=0;phi(3,j)=1;
+    end
+   end
+  end
+  %P2element
+  if p==2
+    for j=1:m
+      x=gauss(j,1);y=gauss(j,2);
+      if ndx==0 && ndy==0%basisfunctions
+        phi(1,j)=2*x^2+2*y^2+4*x*y-3*y-3*x+1;%point1:(0,0)
+        phi(2,j)=2*x^2-x;%point2:(1,0)
+        phi(3,j)=2*y^2-y;%point3:(0,1)
+        phi(4,j)=-4*x^2-4*x*y+4*x;%point4:(1/2,0)
+        phi(5,j)=4*x*y;%point5:(1/2,1/2)
+        phi(6,j)=-4*y^2-4*x*y+4*y;%point6:(0,1/2)
+      end
+      if ndx==1&&ndy==0%firstderivativeforx
+        phi(1,j)=4*x+4*y-3;phi(2,j)=4*x-1;phi(3,j)=0;
+        phi(4,j)=-8*x-4*y+4;phi(5,j)=4*y;phi(6,j)=-4*y;
+      end
+      if ndx==0&&ndy==1%firstderivativefory
+        phi(1,j)=4*y+4*x-3;phi(2,j)=0;phi(3,j)=4*y-1;
+        phi(4,j)=-4*x;phi(5,j)=4*x;phi(6,j)=-8*y-4*x+4;
+      end
+    end
+  end
 end
 ```
 
@@ -153,46 +155,97 @@ This function assembles the matrix for the Oseen term `C(u_k-1; u, v) = ∫_Ω (
 
 **Code Snippet: `assemble_An1_v.m`**
 ```matlab
-function An1 = assemble_An1_v(P, T, Pb, Tb, gauss, weight, p, u_k_vec)
-    Npb = size(Pb, 1); [Ne, Nlpj] = size(Tb); Ng = size(gauss, 1);
-    phi = basis_function(p, 0, 0, gauss);
-    dphix = basis_function(p, 1, 0, gauss);
-    dphiy = basis_function(p, 0, 1, gauss);
-    C_global = sparse(Npb, Npb);
+function An1 = assemble_An1_v(P,T,Pb, Tb, gauss_bary, weight, p_fem, u_k_vec)
+    Npb = size(Pb, 1);
+    Ne = size(Tb, 1);
+    Nlb = size(Tb, 2);
+    Ng = size(gauss_bary, 1);
 
-    for ne = 1:Ne % Loop over each element
-        nodes_k_pb = Tb(ne, :);
-        x1=Pb(nodes_k_pb(1),1); y1=Pb(nodes_k_pb(1),2);
-        x2=Pb(nodes_k_pb(2),1); y2=Pb(nodes_k_pb(2),2);
-        x3=Pb(nodes_k_pb(3),1); y3=Pb(nodes_k_pb(3),2);
-        
+    % --- Input Checks and Preparation ---
+    if size(gauss_bary, 2) ~= 3
+        error('assemble_An1_v requires barycentric coordinates (Ng x 3)');
+    end
+    if size(weight, 1) ~= 1 || size(weight, 2) ~= Ng
+         if size(weight, 2) == 1 && size(weight, 1) == Ng
+             weight = weight'; % Ensure it's a row vector
+         else
+            error('Weight vector dimension should be 1 x Ng');
+         end
+    end
+    if isvector(u_k_vec) && length(u_k_vec) == 2 * Npb
+        u_k = [u_k_vec(1:Npb), u_k_vec(Npb+1:2*Npb)];
+    elseif size(u_k_vec, 1) == Npb && size(u_k_vec, 2) == 2
+        u_k = u_k_vec;
+    else
+        error('Input velocity field u_k_vec has incorrect format');
+    end
+
+    % --- Coordinate Transformation: Barycentric -> Reference Cartesian ---
+    gauss_xy = gauss_bary(:,); % x = lambda2, y = lambda3
+
+    % --- Get Basis Function Values and Derivatives ---
+    phi_ref = basis_function(p_fem, 0, 0, gauss_xy); % Values @ Ng points, Nlb x Ng
+    dphix_ref = basis_function(p_fem, 1, 0, gauss_xy); % Ref x-derivatives, Nlb x Ng
+    dphiy_ref = basis_function(p_fem, 0, 1, gauss_xy); % Ref y-derivatives, Nlb x Ng
+
+    % --- Sparse Matrix Assembly Preparation (Pre-allocation) ---
+    max_entries = Ne * Nlb * Nlb;
+    ii = zeros(max_entries, 1);
+    jj = zeros(max_entries, 1);
+    ss = zeros(max_entries, 1);
+    entry_count = 0;
+
+    % --- Loop over Elements for Assembly ---
+    for k = 1:Ne
+        nodes_k = Tb(k, :);
+        P_k_vertices = P(T(k,:), :);
+
+        x1=P_k_vertices(1,1); y1=P_k_vertices(1,2);
+        x2=P_k_vertices(2,1); y2=P_k_vertices(2,2);
+        x3=P_k_vertices(3,1); y3=P_k_vertices(3,2);
         detJ = (x2-x1)*(y3-y1) - (x3-x1)*(y2-y1);
-        abs_detJ = abs(detJ);
-        invJ = [(y3-y1),-(x3-x1);-(y2-y1),(x2-x1)]/detJ;
 
-        u_k_local_nodes = u_k_vec(nodes_k_pb, :);
-        Ck_local = zeros(Nlpj, Nlpj);
-        
-        for i = 1:Nlpj
-            for j = 1:Nlpj
-                integrand_value = 0;
-                for k = 1:Ng % Loop over Gauss points
-                    u_k_at_gauss = u_k_local_nodes' * phi(:,k);
-                    
-                    dphix_phys = invJ(1,1)*dphix(j,k) + invJ(2,1)*dphiy(j,k);
-                    dphiy_phys = invJ(1,2)*dphix(j,k) + invJ(2,2)*dphiy(j,k);
-                    
-                    uk_dot_grad_phij_k = u_k_at_gauss(1) * dphix_phys + u_k_at_gauss(2) * dphiy_phys;
-                    phi_i_k = phi(i, k);
-                    
-                    integrand_value = integrand_value + abs_detJ * weight(k) * (phi_i_k * uk_dot_grad_phij_k);
-                end
-                Ck_local(i,j) = integrand_value;
+        if abs(detJ) < 1e-12; continue; end
+        abs_detJ = abs(detJ);
+
+        invJ11 =  (y3-y1)/detJ; invJ12 = -(x3-x1)/detJ;
+        invJ21 = -(y2-y1)/detJ; invJ22 =  (x2-x1)/detJ;
+
+        u_k_local_nodes = u_k(nodes_k, :);
+        u_k_at_gauss = u_k_local_nodes' * phi_ref;
+
+        dphix_phys = invJ11 * dphix_ref + invJ21 * dphiy_ref;
+        dphiy_phys = invJ12 * dphix_ref + invJ22 * dphiy_ref;
+
+        Ck_local = zeros(Nlb, Nlb);
+        for i = 1:Nlb
+            for j = 1:Nlb
+                uk_dot_grad_phij = u_k_at_gauss(1,:) .* dphix_phys(j,:) ...
+                                 + u_k_at_gauss(2,:) .* dphiy_phys(j,:);
+                integrand = uk_dot_grad_phij .* phi_ref(i,:);
+                Ck_local(i,j) = (integrand .* weight) * ones(Ng, 1) * abs_detJ;
             end
         end
-        C_global(nodes_k_pb, nodes_k_pb) = C_global(nodes_k_pb, nodes_k_pb) + Ck_local;
+
+        row_indices_global = repmat(nodes_k', Nlb, 1);
+        col_indices_global = repelem(nodes_k', Nlb, 1);
+        num_local_entries = Nlb * Nlb;
+        current_range = entry_count + (1:num_local_entries);
+
+        ii(current_range) = row_indices_global;
+        jj(current_range) = col_indices_global;
+        ss(current_range) = Ck_local(:);
+        entry_count = entry_count + num_local_entries;
     end
-    An1 = blkdiag(C_global, C_global);
+
+    % --- Assemble Global Sparse Matrix C ---
+    ii = ii(1:entry_count);
+    jj = jj(1:entry_count);
+    ss = ss(1:entry_count);
+    C = sparse(ii, jj, ss, Npb, Npb);
+
+    % --- Construct Final Block Diagonal Matrix An1 ---
+    An1 = blkdiag(C, C);
 end
 ```
 
@@ -201,56 +254,75 @@ This function assembles the other part of the convection Jacobian, `∫_Ω ((δu
 
 **Code Snippet: `assemble_An2_v.m`**
 ```matlab
-function An2 = assemble_An2(P, T, Pb, Tb, gauss, weight, p, u_k_vec)
-    Npb = size(Pb, 1); [Ne, Nlpj] = size(Tb); Ng = size(gauss, 1);
-    phi = basis_function(p, 0, 0, gauss);
-    dphix = basis_function(p, 1, 0, gauss);
-    dphiy = basis_function(p, 0, 1, gauss);
+function An2 = assemble_An2_v(P, T, Pb, Tb, gauss_bary, weight, p_fem, u_k_vec)
+    Npb = size(Pb, 1);
+    Ne = size(Tb, 1);
+    Nlb = size(Tb, 2);
+    Ng = size(gauss_bary, 1);
+
+    % --- Input Checks and Preparation ---
+    if isvector(u_k_vec) && length(u_k_vec) == 2 * Npb; u_k = [u_k_vec(1:Npb), u_k_vec(Npb+1:2*Npb)];
+    elseif size(u_k_vec, 1) == Npb && size(u_k_vec, 2) == 2; u_k = u_k_vec;
+    else; error('Input velocity field u_k_vec has incorrect format'); end
     
-    C11_global = sparse(Npb, Npb); C12_global = sparse(Npb, Npb);
-    C21_global = sparse(Npb, Npb); C22_global = sparse(Npb, Npb);
+    gauss_xy = gauss_bary(:,);
+    phi_ref = basis_function(p_fem, 0, 0, gauss_xy);
+    dphix_ref = basis_function(p_fem, 1, 0, gauss_xy);
+    dphiy_ref = basis_function(p_fem, 0, 1, gauss_xy);
 
-    for ne = 1:Ne % Loop over elements
-        nodes_k_pb = Tb(ne, :);
-        x1=Pb(nodes_k_pb(1),1); y1=Pb(nodes_k_pb(1),2);
-        x2=Pb(nodes_k_pb(2),1); y2=Pb(nodes_k_pb(2),2);
-        x3=Pb(nodes_k_pb(3),1); y3=Pb(nodes_k_pb(3),2);
+    % --- Sparse Matrix Assembly Preparation ---
+    max_entries_total = 4 * Ne * Nlb * Nlb;
+    ii_An2 = zeros(max_entries_total, 1); jj_An2 = zeros(max_entries_total, 1); ss_An2 = zeros(max_entries_total, 1);
+    entry_count_total = 0;
+
+    % --- Loop over Elements ---
+    for k = 1:Ne
+        nodes_k = Tb(k, :);
+        P_k_vertices = P(T(k,:), :);
+        x1=P_k_vertices(1,1); y1=P_k_vertices(1,2); x2=P_k_vertices(2,1); y2=P_k_vertices(2,2); x3=P_k_vertices(3,1); y3=P_k_vertices(3,2);
         detJ = (x2-x1)*(y3-y1) - (x3-x1)*(y2-y1);
+        if abs(detJ) < 1e-12; continue; end
         abs_detJ = abs(detJ);
-        invJ = [(y3-y1),-(x3-x1);-(y2-y1),(x2-x1)]/detJ;
-        
-        u_k_local = u_k_vec(nodes_k_pb, :);
-        dphix_phys = invJ(1,1) * dphix + invJ(2,1) * dphiy;
-        dphiy_phys = invJ(1,2) * dphix + invJ(2,2) * dphiy;
+        invJ11=(y3-y1)/detJ; invJ12=-(x3-x1)/detJ; invJ21=-(y2-y1)/detJ; invJ22=(x2-x1)/detJ;
 
-        duk1_dx_at_gauss = u_k_local(:, 1)' * dphix_phys;
-        duk1_dy_at_gauss = u_k_local(:, 1)' * dphiy_phys;
-        duk2_dx_at_gauss = u_k_local(:, 2)' * dphix_phys;
-        duk2_dy_at_gauss = u_k_local(:, 2)' * dphiy_phys;
+        u_k_local_nodes = u_k(nodes_k, :);
+        dphix_phys = invJ11 * dphix_ref + invJ21 * dphiy_ref;
+        dphiy_phys = invJ12 * dphix_ref + invJ22 * dphiy_ref;
 
-        Ck_11 = zeros(Nlpj, Nlpj); Ck_12 = zeros(Nlpj, Nlpj);
-        Ck_21 = zeros(Nlpj, Nlpj); Ck_22 = zeros(Nlpj, Nlpj);
+        duk1_dx_at_gauss = u_k_local_nodes(:, 1)' * dphix_phys;
+        duk1_dy_at_gauss = u_k_local_nodes(:, 1)' * dphiy_phys;
+        duk2_dx_at_gauss = u_k_local_nodes(:, 2)' * dphix_phys;
+        duk2_dy_at_gauss = u_k_local_nodes(:, 2)' * dphiy_phys;
 
-        for i = 1:Nlpj
-            for j = 1:Nlpj
-                int_val_11=0; int_val_12=0; int_val_21=0; int_val_22=0;
-                for k = 1:Ng % Loop over Gauss points
-                    common_factor = phi(i,k) * phi(j,k) * weight(k) * abs_detJ;
-                    int_val_11 = int_val_11 + common_factor * duk1_dx_at_gauss(k);
-                    int_val_12 = int_val_12 + common_factor * duk1_dy_at_gauss(k);
-                    int_val_21 = int_val_21 + common_factor * duk2_dx_at_gauss(k);
-                    int_val_22 = int_val_22 + common_factor * duk2_dy_at_gauss(k);
-                end
-                Ck_11(i,j) = int_val_11; Ck_12(i,j) = int_val_12;
-                Ck_21(i,j) = int_val_21; Ck_22(i,j) = int_val_22;
-            end
+        % --- Vectorized computation of local matrix blocks ---
+        phi_outer_phi_times_weight_detJ = zeros(Nlb, Nlb, Ng);
+        for q=1:Ng
+            phi_q = phi_ref(:, q);
+            phi_outer_phi_times_weight_detJ(:,:,q) = (phi_q * phi_q') * weight(q) * abs_detJ;
         end
-        C11_global(nodes_k_pb, nodes_k_pb) = C11_global(nodes_k_pb, nodes_k_pb) + Ck_11;
-        C12_global(nodes_k_pb, nodes_k_pb) = C12_global(nodes_k_pb, nodes_k_pb) + Ck_12;
-        C21_global(nodes_k_pb, nodes_k_pb) = C21_global(nodes_k_pb, nodes_k_pb) + Ck_21;
-        C22_global(nodes_k_pb, nodes_k_pb) = C22_global(nodes_k_pb, nodes_k_pb) + Ck_22;
+
+        Ck_11 = sum(phi_outer_phi_times_weight_detJ .* reshape(duk1_dx_at_gauss, 1, 1, Ng), 3);
+        Ck_12 = sum(phi_outer_phi_times_weight_detJ .* reshape(duk1_dy_at_gauss, 1, 1, Ng), 3);
+        Ck_21 = sum(phi_outer_phi_times_weight_detJ .* reshape(duk2_dx_at_gauss, 1, 1, Ng), 3);
+        Ck_22 = sum(phi_outer_phi_times_weight_detJ .* reshape(duk2_dy_at_gauss, 1, 1, Ng), 3);
+
+        % --- Store triplets for sparse assembly ---
+        for i = 1:Nlb; for j = 1:Nlb
+                global_row_i = nodes_k(i); global_col_j = nodes_k(j);
+                if abs(Ck_11(i,j)) > 1e-14; entry_count_total = entry_count_total + 1; ii_An2(entry_count_total) = global_row_i;      jj_An2(entry_count_total) = global_col_j;      ss_An2(entry_count_total) = Ck_11(i,j); end
+                if abs(Ck_12(i,j)) > 1e-14; entry_count_total = entry_count_total + 1; ii_An2(entry_count_total) = global_row_i;      jj_An2(entry_count_total) = global_col_j + Npb; ss_An2(entry_count_total) = Ck_12(i,j); end
+                if abs(Ck_21(i,j)) > 1e-14; entry_count_total = entry_count_total + 1; ii_An2(entry_count_total) = global_row_i + Npb; jj_An2(entry_count_total) = global_col_j;      ss_An2(entry_count_total) = Ck_21(i,j); end
+                if abs(Ck_22(i,j)) > 1e-14; entry_count_total = entry_count_total + 1; ii_An2(entry_count_total) = global_row_i + Npb; jj_An2(entry_count_total) = global_col_j + Npb; ss_An2(entry_count_total) = Ck_22(i,j); end
+        end; end
     end
-    An2 = [C11_global, C12_global; C21_global, C22_global];
+
+    % --- Assemble Global Sparse Matrix An2 ---
+    if entry_count_total > 0
+        ii_An2 = ii_An2(1:entry_count_total); jj_An2 = jj_An2(1:entry_count_total); ss_An2 = ss_An2(1:entry_count_total);
+        An2 = sparse(ii_An2, jj_An2, ss_An2, 2*Npb, 2*Npb);
+    else
+        An2 = sparse(2*Npb, 2*Npb);
+    end
 end
 ```
 
