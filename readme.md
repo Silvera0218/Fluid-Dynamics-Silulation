@@ -334,14 +334,14 @@ end
 In steady-state simulations, we solve for the final equilibrium state of the flow field.
 
 #### Oseen Linearization Results
-| Velocity Magnitude `|u|` (μ=0.01) | V-Component of Velocity `V` (μ=0.01) |
+| Velocity Magnitude `\|u\|` (μ=0.01) | V-Component of Velocity `V` (μ=0.01) |
 | :---: | :---: |
-| ![Oseen Norm](assets/Abs_U_Oseen_001.png) | ![Oseen V-comp](assets/V_Oseen_001.png) |
+| ![Oseen Norm](assets/steady_oseen_norm_mu0.01.png) | ![Oseen V-comp](assets/steady_oseen_v_mu0.01.png) |
 
 #### Newton Linearization Results
-| Velocity Magnitude `|u|` (μ=0.01) | Streamlines (μ=0.01) |
+| Velocity Magnitude `\|u\|` (μ=0.01) | Streamlines (μ=0.01) |
 | :---: | :---: |
-| ![Newton Norm](assets/Abs_U_Newton_001.png) | ![Newton Streamline](assets/V_Newton_001.png) |
+| ![Newton Norm](assets/steady_newton_norm_mu0.01.png) | ![Newton V-comp](assets/steady_newton_streamline_mu0.01.png) |
 
 #### Convergence Comparison (μ=0.01)
 | Oseen Convergence History | Newton Convergence History |
