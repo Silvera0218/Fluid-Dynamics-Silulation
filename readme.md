@@ -67,9 +67,9 @@ The unsteady problem describes the evolution of the flow field over time `t`. Th
 #### b) Temporal and Spatial Discretization
 We employ a "Method of Lines" approach:
 1.  **Temporal Discretization (Implicit Euler Method)**: We discretize the time derivative using the first-order accurate Implicit Euler scheme to solve for `u^n` at time step `n`:
-    $$
+    ```math
     \frac{\mathbf{u}^n - \mathbf{u}^{n-1}}{\Delta t} - \mu \Delta \mathbf{u}^n + (\mathbf{u}^n \cdot \nabla)\mathbf{u}^n + \nabla p^n = \mathbf{f}^n
-    $$
+    ```
     Rearranging this yields a steady-state-like non-linear equation to be solved at each time step.
 
 2.  **Spatial Discretization (Finite Element Weak Form)**: Applying the same FEM procedure as in the steady case to the time-discretized equation, we get the algebraic system for each time step `n`:
