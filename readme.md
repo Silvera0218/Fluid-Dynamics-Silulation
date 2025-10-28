@@ -94,7 +94,7 @@ We employ a "Method of Lines" approach:
 ## Numerical Implementation Details
 
 ### 1. Mesh Generation
-We use `Distmesh` to generate a high-quality, quasi-uniform triangular mesh, which is then elevated to P2 quadratic elements for the Taylor-Hood formulation.
+We use `Distmesh` to generate a quasi-uniform triangular mesh, which is then elevated to P2 quadratic elements for the Taylor-Hood formulation.
 
 <img src="assets/p2_mesh.png" width="600">
 
