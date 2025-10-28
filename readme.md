@@ -56,12 +56,12 @@ F \\
 
 #### a) Governing Equations (Strong Form)
 The unsteady problem describes the evolution of the flow field over time `t`. The governing equations include a time derivative term:
-$$
+```math
 \begin{aligned}
 \frac{\partial \mathbf{u}}{\partial t} - \mu \Delta \mathbf{u} + (\mathbf{u} \cdot \nabla)\mathbf{u} + \nabla p &= \mathbf{f} \\
 \nabla \cdot \mathbf{u} &= 0
 \end{aligned}
-$$
+```
 
 #### b) Temporal and Spatial Discretization
 We employ a "Method of Lines" approach:
