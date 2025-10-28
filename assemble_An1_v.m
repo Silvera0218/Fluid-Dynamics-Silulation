@@ -3,7 +3,7 @@ function An1 = assemble_An1_v(P,T,Pb, Tb, gauss_bary, weight, p_fem, u_k_vec)
 
     Npb = size(Pb, 1);
     Ne = size(Tb, 1);
-    Nlb = size(Tb, 2); % P2 时为 6
+    Nlb = size(Tb, 2);
     Ng = size(gauss_bary, 1);
 
     % --- 输入检查和准备 ---
@@ -138,3 +138,4 @@ function An1 = assemble_An1_v(P,T,Pb, Tb, gauss_bary, weight, p_fem, u_k_vec)
     fprintf('  最终 Oseen 块矩阵 An1 构建完成. Size: %d x %d.\n', size(An1,1), size(An1,2));
 
 end % 函数结束 assemble_An1_v
+
