@@ -48,13 +48,11 @@ F \\
 0
 \end{pmatrix}
 ```
-
-```math
 - **K**: Stiffness matrix (from the diffusion term `μΔu`)
 - **N(U)**: Non-linear convection matrix (from the convection term `(u·∇)u`)
 - **B**: Divergence matrix
 - **U, P**: Unknown coefficient vectors for velocity and pressure
-```
+
 ### 2. Unsteady Navier-Stokes Equations
 
 #### a) Governing Equations (Strong Form)
@@ -255,26 +253,6 @@ function An2 = assemble_An2(P, T, Pb, Tb, gauss, weight, p, u_k_vec)
     An2 = [C11_global, C12_global; C21_global, C22_global];
 end
 ```
-
-## How to Run
-
-### Dependencies
-- **MATLAB** (R2020a or later)
-- **Distmesh Toolbox**: Only required if you need to regenerate the mesh. A pre-generated `domain_mesh.mat` is included in the repository.
-
-### Execution Steps
-1.  Clone this repository to your local machine:
-    ```bash
-    git clone https://github.com/Silvera0218/Fluid-Dynamics-Silulation.git
-    ```
-2.  Open MATLAB and add the project folder to the MATLAB path.
-3.  Run the desired solver script from the MATLAB command window:
-    - **Steady-State Oseen Solver**: `main_oseen_ls_dbc;`
-    - **Steady-State Newton Solver**: `main_newton_ls_dbc;`
-    - **Unsteady Newton Solver**: `main_unsteady_ns_nonlinear_newton;`
-    *You can modify parameters like viscosity `mu` inside each script.*
-
----
 
 ## Simulation Results and Analysis
 
