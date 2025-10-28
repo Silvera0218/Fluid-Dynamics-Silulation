@@ -1,11 +1,4 @@
 function An2 = assemble_An2_v(P, T, Pb, Tb, gauss_bary, weight, p_fem, u_k_vec)
-% (近似 Newton) 组装 An2 矩阵, 基于 ((u_{k-1} ⋅ ∇)u_{k-1}, v_h) 的某种表示
-% 或者说，近似计算 ((δu ⋅ ∇)u_k, v_h) 对应的矩阵。
-% ---> 维持上一版本的实现，因为它计算的就是 ((δu ⋅ ∇)u_k, v_h) <---
-% 接收重心坐标 gauss_bary，内部转换为笛卡尔坐标 gauss_xy 后调用 basis_function。
-%
-% 输入: (同 assemble_An1_v)
-% 输出: An2 矩阵 (2*Npb x 2*Npb sparse)
 
     Npb = size(Pb, 1);
     Ne = size(Tb, 1);
@@ -104,5 +97,6 @@ function An2 = assemble_An2_v(P, T, Pb, Tb, gauss_bary, weight, p_fem, u_k_vec)
     end
     assembly_time_an2 = toc(tic_an2);
     fprintf('  内部 Newton 矩阵 An2 (近似) 组装完成. Size: %d x %d, nnz: %d. Time: %.2f sec\n', 2*Npb, 2*Npb, nnz(An2), assembly_time_an2);
+
 
 end % 函数结束 assemble_An2_v_approx
