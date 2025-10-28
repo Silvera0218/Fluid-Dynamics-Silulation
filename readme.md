@@ -18,8 +18,8 @@ The core of the project lies in the implementation and comparison of several ite
 The steady-state problem describes the final equilibrium state of the fluid flow. The velocity field **u** and pressure field *p* satisfy the following system of equations:
 ```math
 \begin{aligned}
--\mu \Delta \mathbf{u} + (\mathbf{u} \cdot \nabla)\mathbf{u} + \nabla p &= \mathbf{f} \quad &&\text{(Momentum Conservation)} \\
-\nabla \cdot \mathbf{u} &= 0 \quad &&\text{(Mass Conservation / Incompressibility)}
+-\mu \Delta \mathbf{u} + (\mathbf{u} \cdot \nabla)\mathbf{u} + \nabla p &= \mathbf{f} \\
+\nabla \cdot \mathbf{u} &= 0 
 \end{aligned}
 ```
 #### b) Spatial Discretization (Finite Element Weak Form)
