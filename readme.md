@@ -17,23 +17,20 @@ The core of the project lies in the implementation and comparison of several ite
 
 #### a) Governing Equations (Strong Form)
 The steady-state problem describes the final equilibrium state of the fluid flow. The velocity field **u** and pressure field *p* satisfy the following system of equations:
-$$
+```math
 \begin{aligned}
 -\mu \Delta \mathbf{u} + (\mathbf{u} \cdot \nabla)\mathbf{u} + \nabla p &= \mathbf{f} \quad &&\text{(Momentum Conservation)} \\
 \nabla \cdot \mathbf{u} &= 0 \quad &&\text{(Mass Conservation / Incompressibility)}
 \end{aligned}
-$$
-
+```
 #### b) Spatial Discretization (Finite Element Weak Form)
 By multiplying by test functions **v** and *q* and integrating over the domain Ω, we convert the strong form into a weak form:
-$$
 \begin{aligned}
 (\mu \nabla \mathbf{u}, \nabla \mathbf{v}) + ((\mathbf{u} \cdot \nabla)\mathbf{u}, \mathbf{v}) - (p, \nabla \cdot \mathbf{v}) &= (\mathbf{f}, \mathbf{v}) \quad \forall \mathbf{v} \in V^0 \\
 (\nabla \cdot \mathbf{u}, q) &= 0 \quad \forall q \in Q
 \end{aligned}
-$$
+
 where `(a, b)` denotes the L2 inner product `∫_Ω a·b dΩ`. After discretizing with Taylor-Hood (P2-P1) elements, we obtain a large-scale non-linear algebraic system:
-$$
 \begin{pmatrix}
 \mu K + N(U) & B^T \\
 B & 0
@@ -47,7 +44,7 @@ P
 F \\
 0
 \end{pmatrix}
-$$
+
 - **K**: Stiffness matrix (from the diffusion term `μΔu`)
 - **N(U)**: Non-linear convection matrix (from the convection term `(u·∇)u`)
 - **B**: Divergence matrix
