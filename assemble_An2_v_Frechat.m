@@ -5,7 +5,7 @@ function An2 = assemble_An2_v_Frechat(P, T, Pb, Tb, gauss_bary, weight, p_fem, u
 % C2_12(i,j) ≈ ∫ ( phi_j * ∂(uk1)/∂y ) * phi_i dΩ
 % C2_21(i,j) ≈ ∫ ( phi_j * ∂(uk2)/∂x ) * phi_i dΩ
 % C2_22(i,j) ≈ ∫ ( phi_j * ∂(uk2)/∂y ) * phi_i dΩ
-% 接收重心坐标 gauss_bary，内部转换为笛卡尔坐标 gauss_xy 后调用 basis_function。
+
 
     Npb = size(Pb, 1); Ne = size(Tb, 1); Nlb = size(Tb, 2); Ng = size(gauss_bary, 1);
 
@@ -101,5 +101,6 @@ function An2 = assemble_An2_v_Frechat(P, T, Pb, Tb, gauss_bary, weight, p_fem, u
     end
     assembly_time_an2 = toc(tic_an2);
     fprintf('  内部 Newton 矩阵 An2 (标准定义) 组装完成. Size: %d x %d, nnz: %d. Time: %.2f sec\n', 2*Npb, 2*Npb, nnz(An2), assembly_time_an2);
+
 
 end % 函数结束 assemble_An2_v
