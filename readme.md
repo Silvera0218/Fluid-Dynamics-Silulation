@@ -341,7 +341,7 @@ In steady-state simulations, we solve for the final equilibrium state of the flo
 #### Newton Linearization Results
 | Velocity Magnitude `\|u\|` (μ=0.01) | Streamlines (μ=0.01) |
 | :---: | :---: |
-| ![Newton Norm](assets/steady_newton_norm_mu0.01.png) | ![Newton V-comp](assets/steady_newton_streamline_mu0.01.png) |
+| ![Newton Norm](assets/Abs_U_Newton_001.png) | ![Newton V-comp](assets/V_Newton_001.png) |
 
 #### Convergence Comparison (μ=0.01)
 | Oseen Convergence History | Newton Convergence History |
