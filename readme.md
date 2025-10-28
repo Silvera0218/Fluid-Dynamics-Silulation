@@ -99,7 +99,13 @@ We employ a "Method of Lines" approach:
 ### 1. Mesh Generation
 We use `Distmesh` to generate a quasi-uniform triangular mesh, which is then elevated to P2 quadratic elements for the Taylor-Hood formulation.
 
-<img src="assets/p2_mesh.png" width="600">
+#### Mesh perform
+| Initial Mesh | FE Mesh |
+| :---: | :---: |
+| ![Initial Mesh](assets/Mesh.png) | ![FE Mesh](FE_MESH.png) |
+
+The boundary of mesh is identified by locating the point such that only belongs to a single triangle.
+<img src="assets/Boundary_point.png" width="600">
 
 ### 2. Finite Element Assembly Core
 The core of our solver involves assembling matrices by integrating products of basis functions and their derivatives over each element.
