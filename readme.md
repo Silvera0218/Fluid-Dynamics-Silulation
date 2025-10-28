@@ -371,8 +371,7 @@ The flow begins from a quasi-steady state, gradually becomes unstable, and vorti
 | :---: | :---: |
 | ![Unsteady t=11.4 Norm](assets/unsteady_t11.4_norm.png) | ![Unsteady t=11.4 Streamline](assets/unsteady_t11.4_streamline.png) |
 
-## Conclusion
-This project successfully established a powerful simulation platform for 2D incompressible fluid dynamics. Through the implementation and comparison of different numerical strategies, we conclude the following:
-- For **steady-state problems**, the **Approximate Newton method** combined with a **line search** is the most efficient and robust solution strategy.
-- For **unsteady problems**, using a **full Newton's method** within each time step accurately captures the transient evolution of the flow field, enabling the simulation of complex physical phenomena like the von Kármán vortex street.
+## Further information
+
+I might neglect some functions in this projectm since this was accomplished 6 month ago. If you find something missing, please contact me. Thnaks.
 ```
