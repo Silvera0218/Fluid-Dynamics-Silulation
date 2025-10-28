@@ -105,7 +105,7 @@ We use `Distmesh` to generate a quasi-uniform triangular mesh, which is then ele
 | ![Initial Mesh](assets/Mesh.png) | ![FE Mesh](assets/FE_MESH.png) |
 
 The boundary of mesh is identified by locating the point such that only belongs to a single triangle.
-<img src="assets/Boundary_point.png" width="600">
+<img src="assets/Boundary_point.png" width="600" align="center">
 
 ### 2. Finite Element Assembly Core
 The core of our solver involves assembling matrices by integrating products of basis functions and their derivatives over each element.
