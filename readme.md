@@ -367,7 +367,12 @@ The flow begins from a quasi-steady state, gradually becomes unstable, and vorti
 
 #### Warning
 
-Please be aware that the unsteady simulation for the low-viscosity case (μ = 0.01) is computationally intensive. At the current mesh resolution (h ≈ 0.2-0.3), generating the animated GIF showcasing the full development of the vortex street required approximately 13 hours of computation time. This highlights the significant computational resources needed for time-dependent, high-fidelity fluid simulations, especially as the Reynolds number increases.
+Please be aware that the unsteady simulation for the low-viscosity case (dt=0.01) is computationally intensive. At the current mesh resolution (h ≈ 0.2-0.3), generating the animated GIF showcasing the full development of the vortex street required approximately 13 hours of computation time. However, for larger dt, the von Kármán vortex street phenomenon is not significant:
+
+| dt=0.5 | dt=0.8 |
+| :---: | :---: |
+| ![dt=0.5](assets/unsteady_flow_newtonTRUE_FI_mu0.01_dt0.50.gif) | ![dt=0.8](assets/unsteady_flow_simulation.gif) |
+
 
 ## Further information
 
