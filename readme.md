@@ -24,13 +24,16 @@ The steady-state problem describes the final equilibrium state of the fluid flow
 \end{aligned}
 ```
 #### b) Spatial Discretization (Finite Element Weak Form)
+
 By multiplying by test functions **v** and *q* and integrating over the domain Ω, we convert the strong form into a weak form:
+```math
 \begin{aligned}
 (\mu \nabla \mathbf{u}, \nabla \mathbf{v}) + ((\mathbf{u} \cdot \nabla)\mathbf{u}, \mathbf{v}) - (p, \nabla \cdot \mathbf{v}) &= (\mathbf{f}, \mathbf{v}) \quad \forall \mathbf{v} \in V^0 \\
 (\nabla \cdot \mathbf{u}, q) &= 0 \quad \forall q \in Q
 \end{aligned}
-
+```
 where `(a, b)` denotes the L2 inner product `∫_Ω a·b dΩ`. After discretizing with Taylor-Hood (P2-P1) elements, we obtain a large-scale non-linear algebraic system:
+```math
 \begin{pmatrix}
 \mu K + N(U) & B^T \\
 B & 0
@@ -44,12 +47,14 @@ P
 F \\
 0
 \end{pmatrix}
+```
 
+```math
 - **K**: Stiffness matrix (from the diffusion term `μΔu`)
 - **N(U)**: Non-linear convection matrix (from the convection term `(u·∇)u`)
 - **B**: Divergence matrix
 - **U, P**: Unknown coefficient vectors for velocity and pressure
-
+```
 ### 2. Unsteady Navier-Stokes Equations
 
 #### a) Governing Equations (Strong Form)
@@ -70,7 +75,8 @@ We employ a "Method of Lines" approach:
     Rearranging this yields a steady-state-like non-linear equation to be solved at each time step.
 
 2.  **Spatial Discretization (Finite Element Weak Form)**: Applying the same FEM procedure as in the steady case to the time-discretized equation, we get the algebraic system for each time step `n`:
-    $$
+
+    ```math
     \begin{pmatrix}
     \frac{1}{\Delta t}M + \mu K + N(U^n) & B^T \\
     B & 0
@@ -84,7 +90,7 @@ We employ a "Method of Lines" approach:
     \frac{1}{\Delta t}M U^{n-1} + F^n \\
     0
     \end{pmatrix}
-    $$
+    ```
     - **M**: Mass matrix (from the time derivative term `∂u/∂t`)
     - **U^(n-1)**: The known velocity solution from the previous time step
 
