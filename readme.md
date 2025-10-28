@@ -88,6 +88,7 @@ We employ a "Method of Lines" approach:
     0
     \end{pmatrix}
     ```
+    
     - **M**: Mass matrix (from the time derivative term `∂u/∂t`)
     - **U^(n-1)**: The known velocity solution from the previous time step
 
